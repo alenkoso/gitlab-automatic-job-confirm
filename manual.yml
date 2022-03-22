@@ -1,0 +1,13 @@
+workflow:
+  rules:
+    - when: always
+
+stages:
+  - confirm
+
+manual_confirmation:
+  stage: confirm
+  script:
+    - echo "MANUAL CONFIRMATION DONE."
+  when: manual
+  allow_failure: false

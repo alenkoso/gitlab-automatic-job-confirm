@@ -1,0 +1,11 @@
+workflow:
+  rules:
+    - when: always
+
+stages:
+  - confirm
+
+confirm:
+  stage: confirm
+  script:
+    - echo "THIS ONE WAS EXECUTED AUTOMATICALLY."
