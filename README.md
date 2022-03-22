@@ -1,0 +1,1 @@
+# gitlab-automatic-job-confirm
