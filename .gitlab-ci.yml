@@ -1,0 +1,48 @@
+workflow:
+  rules:
+    - if: "$CI_MERGE_REQUEST_IID"
+
+variables:
+  FAIL:
+    value: "true"
+    description: "Value to be set for testing purposes - simulate job"
+
+stages:
+  - test
+  - confirm
+  - whatever_comes_next
+
+before_script:
+  - cd ${CI_PROJECT_DIR}
+
+run_tests:
+  stage: test
+  script:
+    - JOB_EXIT_CODE=0
+    - if [ $FAIL == 'true' ]; then JOB_EXIT_CODE=1; else JOB_EXIT_CODE=0; fi
+    - if [ ! -d "child_pipelines" ]; then mkdir child_pipelines; fi
+    - if [ $JOB_EXIT_CODE == 1 ]; then cp -v manual.yml pipeline.yml; else cp -v automatic.yml pipeline.yml; fi
+    - mv pipeline.yml child_pipelines
+  artifacts:
+    name: childPipeline
+    when: always
+    paths:
+      - child_pipelines/pipeline.yml
+  allow_failure: true
+
+confirmation_service:
+  stage: confirm
+  needs:
+    - run_tests
+  trigger:
+    include:
+      - artifact: child_pipelines/pipeline.yml
+        job: run_tests
+    strategy: depend
+
+continue_job:
+  stage: whatever_comes_next
+  needs:
+    - confirmation_service
+  script:
+    - echo "Waited for confirmation_service to end."
